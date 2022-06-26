@@ -227,7 +227,7 @@ internal class CommandReflector(
         }
     }
 
-    fun validate(signatures: List<CommandSignatureFromKFunctionImpl>) {
+    fun validate(signatures: List<CommandSignatureFromKFunction>) {
 
         data class ErasedParameterInfo(
             val index: Int,
@@ -267,7 +267,7 @@ internal class CommandReflector(
     }
 
     @Throws(IllegalCommandDeclarationException::class)
-    fun findSubCommands(): List<CommandSignatureFromKFunctionImpl> {
+    fun findSubCommands(): List<CommandSignatureFromKFunction> {
         val fromMemberFunctions = command::class.functions // exclude static later
             .asSequence()
             .filter { it.isSubCommandFunction() }
@@ -358,10 +358,10 @@ internal class CommandReflector(
             .filter { it is CompositeCommand }
             .flatMap { property ->
                 property as CompositeCommand
-                property.overloadImpls
+                property.overloads
             }.toList()
 
-        val list: MutableList<CommandSignatureFromKFunctionImpl> = ArrayList()
+        val list: MutableList<CommandSignatureFromKFunction> = ArrayList()
         list.addAll(fromMemberFunctions)
         list.addAll(fromMemberProperties)
         return list
