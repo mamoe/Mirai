@@ -351,12 +351,12 @@ internal class GroupNotificationProcessor(
                 val fromUser = from?.findUser()
                 val targetUser = target?.findUser()
 
-                if(fromUser == null || targetUser == null){
+                if (fromUser == null || targetUser == null) {
                     markNotConsumed()
                     logger.debug {
                         "Cannot find from or target in Transformers528 0x14 template\ntemplId=${grayTip.templId}\nPermList=${grayTip.msgTemplParam.structureToString()}"
                     }
-                }else{
+                } else {
                     collected += NudgeEvent(
                             from = fromUser,
                             target = targetUser,
