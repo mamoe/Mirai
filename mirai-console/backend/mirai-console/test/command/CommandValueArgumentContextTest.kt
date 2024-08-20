@@ -19,7 +19,6 @@ import net.mamoe.mirai.console.command.descriptor.ExperimentalCommandDescriptors
 import net.mamoe.mirai.console.command.descriptor.buildCommandArgumentContext
 import net.mamoe.mirai.console.command.java.JCompositeCommand
 import net.mamoe.mirai.console.command.java.JSimpleCommand
-import net.mamoe.mirai.console.command.SubCommandGroup.SubCommand
 import net.mamoe.mirai.console.internal.data.classifierAsKClass
 import net.mamoe.mirai.message.data.Image
 import net.mamoe.mirai.message.data.MessageContent

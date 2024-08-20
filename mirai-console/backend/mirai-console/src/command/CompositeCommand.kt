@@ -116,30 +116,26 @@ public abstract class CompositeCommand(
      */ // open since 2.12
     public override val context: CommandArgumentContext = CommandArgumentContext.Builtins + overrideContext
 
-
-/*    *//**
+    /**
      * 标记一个函数为子指令, 当 [value] 为空时使用函数名.
      * @param value 子指令名
-     *//*
+     */
     @Retention(RUNTIME)
     @Target(FUNCTION)
-    @Deprecated(level = HIDDEN, message = "use SubCommandGroup.SubCommand")
     protected annotation class SubCommand(
         @ResolveContext(COMMAND_NAME) vararg val value: String = [],
     )
 
-    *//** 指令描述 *//*
+    /** 指令描述 */
     @Retention(RUNTIME)
     @Target(FUNCTION)
-    @Deprecated(level = HIDDEN, message = "use SubCommandGroup.Description")
     protected annotation class Description(val value: String)
 
-    *//** 参数名, 将参与构成 [usage] *//*
+    /** 参数名, 将参与构成 [usage] */
     @ConsoleExperimentalApi("Classname might change")
     @Retention(RUNTIME)
     @Target(AnnotationTarget.VALUE_PARAMETER)
-    @Deprecated(level = HIDDEN, message = "use SubCommandGroup.Name")
-    protected annotation class Name(val value: String)*/
+    protected annotation class Name(val value: String)
 }
 
 

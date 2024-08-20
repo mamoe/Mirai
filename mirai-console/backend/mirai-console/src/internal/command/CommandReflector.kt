@@ -68,28 +68,28 @@ internal fun Any.flattenCommandComponents(): MessageChain = buildMessageChain {
 internal object CompositeCommandSubCommandAnnotationResolver :
     SubCommandAnnotationResolver<Command> {
     override fun isDeclaredSubCommand(ownerCommand: Command, function: KFunction<*>) =
-        function.hasAnnotation<SubCommandGroup.SubCommand>()
+        function.hasAnnotation<CompositeCommand.SubCommand>()
 
     override fun getDeclaredSubCommandNames(ownerCommand: Command, function: KFunction<*>): Array<out String> {
-        val annotated = function.findAnnotation<SubCommandGroup.SubCommand>()!!.value
+        val annotated = function.findAnnotation<CompositeCommand.SubCommand>()!!.value
         return if (annotated.isEmpty()) arrayOf(function.name)
         else annotated
     }
 
     override fun getAnnotatedName(ownerCommand: Command, parameter: KParameter): String? =
-        parameter.findAnnotation<SubCommandGroup.Name>()?.value
+        parameter.findAnnotation<CompositeCommand.Name>()?.value
 
     override fun getDescription(ownerCommand: Command, function: KFunction<*>): String? =
-        function.findAnnotation<SubCommandGroup.Description>()?.value
+        function.findAnnotation<CompositeCommand.Description>()?.value
 
     override fun isCombinedSubCommands(command: Command, kProperty: KProperty<*>): Boolean =
-        kProperty.hasAnnotation<SubCommandGroup.FlattenSubCommands>() || kProperty.hasAnnotation<SubCommandGroup.SubCommand>()
+        kProperty.hasAnnotation<SubCommandGroup.FlattenSubCommands>() || kProperty.hasAnnotation<CompositeCommand.SubCommand>()
 
     override fun getCombinedAdditionNames(command: Command, kProperty: KProperty<*>): Array<out String> {
         return if (kProperty.hasAnnotation<SubCommandGroup.FlattenSubCommands>()) {
             emptyArray()
         } else {
-            val annotated = kProperty.findAnnotation<SubCommandGroup.SubCommand>()!!.value
+            val annotated = kProperty.findAnnotation<CompositeCommand.SubCommand>()!!.value
             if (annotated.isEmpty()) arrayOf(kProperty.name)
             else annotated
         }
@@ -100,28 +100,26 @@ internal object CompositeCommandSubCommandAnnotationResolver :
 internal object GroupedCommandSubCommandAnnotationResolver :
     SubCommandAnnotationResolver<Any> {
     override fun isDeclaredSubCommand(ownerCommand: Any, function: KFunction<*>) =
-        function.hasAnnotation<SubCommandGroup.SubCommand>()
+        function.hasAnnotation<CompositeCommand.SubCommand>()
 
     override fun getDeclaredSubCommandNames(ownerCommand: Any, function: KFunction<*>): Array<out String> {
-        val annotated = function.findAnnotation<SubCommandGroup.SubCommand>()!!.value
+        val annotated = function.findAnnotation<CompositeCommand.SubCommand>()!!.value
         return if (annotated.isEmpty()) arrayOf(function.name)
         else annotated
     }
 
-    override fun getAnnotatedName(ownerCommand: Any, parameter: KParameter): String? =
-        parameter.findAnnotation<SubCommandGroup.Name>()?.value
+    override fun getAnnotatedName(ownerCommand: Any, parameter: KParameter): String? = null
 
-    override fun getDescription(ownerCommand: Any, function: KFunction<*>): String? =
-        function.findAnnotation<SubCommandGroup.Description>()?.value
+    override fun getDescription(ownerCommand: Any, function: KFunction<*>): String? = null
 
     override fun isCombinedSubCommands(command: Any, kProperty: KProperty<*>): Boolean =
-        kProperty.hasAnnotation<SubCommandGroup.FlattenSubCommands>() || kProperty.hasAnnotation<SubCommandGroup.SubCommand>()
+        kProperty.hasAnnotation<SubCommandGroup.FlattenSubCommands>() || kProperty.hasAnnotation<CompositeCommand.SubCommand>()
 
     override fun getCombinedAdditionNames(command: Any, kProperty: KProperty<*>): Array<out String> {
         return if (kProperty.hasAnnotation<SubCommandGroup.FlattenSubCommands>()) {
             emptyArray()
         } else {
-            val annotated = kProperty.findAnnotation<SubCommandGroup.SubCommand>()!!.value
+            val annotated = kProperty.findAnnotation<CompositeCommand.SubCommand>()!!.value
             if (annotated.isEmpty()) arrayOf(kProperty.name)
             else annotated
         }
@@ -152,11 +150,29 @@ internal object SimpleCommandSubCommandAnnotationResolver :
 }
 
 internal interface SubCommandAnnotationResolver<T> {
+    /**
+     * 判断ownerCommand中的一个function是否能成为SubCommand
+     */
     fun isDeclaredSubCommand(ownerCommand: T, function: KFunction<*>): Boolean
+    /**
+     * 得出ownerCommand中的一个function成为SubCommand时的名字列表
+     */
     fun getDeclaredSubCommandNames(ownerCommand: T, function: KFunction<*>): Array<out String>
+    /**
+     * 得出ownerCommand中的一个function成为SubCommand时其参数表中的参数的描述
+     */
     fun getAnnotatedName(ownerCommand: T, parameter: KParameter): String?
+    /**
+     * 得出ownerCommand中的一个function成为SubCommand时的描述
+     */
     fun getDescription(ownerCommand: T, function: KFunction<*>): String?
+    /**
+     * 判断ownerCommand中的一个kProperty是否能成为SubCommand
+     */
     fun isCombinedSubCommands(command: T, kProperty: KProperty<*>): Boolean
+    /**
+     * 得出ownerCommand中的一个kProperty成为SubCommand时的指令路径的增加部分
+     */
     fun getCombinedAdditionNames(command: T, kProperty: KProperty<*>): Array<out String>
 }
 
