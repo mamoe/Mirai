@@ -98,24 +98,26 @@ internal object CompositeCommandSubCommandAnnotationResolver :
 
 @Suppress("INVISIBLE_REFERENCE", "INVISIBLE_MEMBER")
 internal object GroupedCommandSubCommandAnnotationResolver :
-    SubCommandAnnotationResolver<Any> {
-    override fun isDeclaredSubCommand(ownerCommand: Any, function: KFunction<*>) =
+    SubCommandAnnotationResolver<SubCommandGroup> {
+    override fun isDeclaredSubCommand(ownerCommand: SubCommandGroup, function: KFunction<*>) =
         function.hasAnnotation<CompositeCommand.SubCommand>()
 
-    override fun getDeclaredSubCommandNames(ownerCommand: Any, function: KFunction<*>): Array<out String> {
+    override fun getDeclaredSubCommandNames(ownerCommand: SubCommandGroup, function: KFunction<*>): Array<out String> {
         val annotated = function.findAnnotation<CompositeCommand.SubCommand>()!!.value
         return if (annotated.isEmpty()) arrayOf(function.name)
         else annotated
     }
 
-    override fun getAnnotatedName(ownerCommand: Any, parameter: KParameter): String? = null
+    override fun getAnnotatedName(ownerCommand: SubCommandGroup, parameter: KParameter): String? =
+        parameter.findAnnotation<CompositeCommand.Name>()?.value
 
-    override fun getDescription(ownerCommand: Any, function: KFunction<*>): String? = null
+    override fun getDescription(ownerCommand: SubCommandGroup, function: KFunction<*>): String? =
+        function.findAnnotation<CompositeCommand.Description>()?.value
 
-    override fun isCombinedSubCommands(command: Any, kProperty: KProperty<*>): Boolean =
+    override fun isCombinedSubCommands(command: SubCommandGroup, kProperty: KProperty<*>): Boolean =
         kProperty.hasAnnotation<SubCommandGroup.FlattenSubCommands>() || kProperty.hasAnnotation<CompositeCommand.SubCommand>()
 
-    override fun getCombinedAdditionNames(command: Any, kProperty: KProperty<*>): Array<out String> {
+    override fun getCombinedAdditionNames(command: SubCommandGroup, kProperty: KProperty<*>): Array<out String> {
         return if (kProperty.hasAnnotation<SubCommandGroup.FlattenSubCommands>()) {
             emptyArray()
         } else {

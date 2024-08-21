@@ -37,12 +37,29 @@ import kotlin.test.*
 
 import net.mamoe.mirai.console.command.SubCommandGroup.FlattenSubCommands
 
+/**
+ *  测试：CompositeCommand下接3种子节点；AbstractSubCommandGroup下接3种子节点；
+ *
+ *
+ *                   [MyUnifiedCommand : CompositeCommand]
+ *                                   |
+ *                     -------------------------------------------------------
+ *                    |                                \                      \
+ *  [ModuleB : AbstractSubCommandGroup]     [functionA0:KFunction]    [ModuleE : CompositeCommand]
+ *                    |
+ *            -----------------------------------------------------------------
+ *          |                                           \                      \
+ *  [ModuleC : AbstractSubCommandGroup]   [ModuleD : CompositeCommand]    [functionB0/functionB1:KFunction]
+ *
+ */
 class MyUnifiedCommand : CompositeCommand(
     owner, "testMyUnifiedCommand", "tsMUC"
 ) {
-    class ModuleAPartB : AbstractSubCommandGroup() {
+    class ModuleB : AbstractSubCommandGroup() {
         @FlattenSubCommands
-        val partC = ModuleAPartC()
+        val moduleC = ModuleC()
+        @FlattenSubCommands
+        val moduleDInB = ModuleD()
 
         @SubCommand
         fun functionB0(arg0: Int) {
@@ -54,7 +71,7 @@ class MyUnifiedCommand : CompositeCommand(
         }
     }
 
-    class ModuleAPartC : AbstractSubCommandGroup() {
+    class ModuleC : AbstractSubCommandGroup() {
         @SubCommand
         fun functionC0(arg0: Int) {
             Testing.ok(arg0)
@@ -65,8 +82,33 @@ class MyUnifiedCommand : CompositeCommand(
         }
     }
 
-    @FlattenSubCommands // 新增若干, 不带前缀注册指令, 执行 `/base function10` `/base functionCustomName11`
-    val partB = ModuleAPartB()
+    class ModuleD : CompositeCommand(owner, "USELESS") {
+        @SubCommand
+        fun functionD0(arg0: Int) {
+            Testing.ok(arg0)
+        }
+        @SubCommand("customNameD1")
+        fun functionD1(arg0: Int) {
+            Testing.ok(arg0)
+        }
+    }
+
+    class ModuleE : CompositeCommand(owner, "USELESS") {
+        @SubCommand
+        fun functionE0(arg0: Int) {
+            Testing.ok(arg0)
+        }
+        @SubCommand("customNameE1")
+        fun functionE1(arg0: Int) {
+            Testing.ok(arg0)
+        }
+    }
+
+    @FlattenSubCommands
+    val moduleB = ModuleB()
+
+    @FlattenSubCommands
+    val moduleE = ModuleE()
 
     @SubCommand
     fun functionA0(arg0: Int) {
@@ -558,6 +600,21 @@ internal class InstanceTestCommand : AbstractConsoleInstanceTest() {
             assertEquals(0, withTesting {
                 assertSuccess(unifiedCompositeCommand.execute(sender, "customNameC1 0"))
             })
+            assertEquals(0, withTesting {
+                assertSuccess(unifiedCompositeCommand.execute(sender, "functionD0 0"))
+            })
+            assertEquals(0, withTesting {
+                assertSuccess(unifiedCompositeCommand.execute(sender, "customNameD1 0"))
+            })
+            assertEquals(true, unifiedCompositeCommand.usage.contains("/${unifiedCompositeCommand.primaryName} functionA0 <arg0>"))
+            assertEquals(true, unifiedCompositeCommand.usage.contains("/${unifiedCompositeCommand.primaryName} functionB0 <arg0>"))
+            assertEquals(true, unifiedCompositeCommand.usage.contains("/${unifiedCompositeCommand.primaryName} customNameB1 <arg0>"))
+            assertEquals(true, unifiedCompositeCommand.usage.contains("/${unifiedCompositeCommand.primaryName} functionC0 <arg0>"))
+            assertEquals(true, unifiedCompositeCommand.usage.contains("/${unifiedCompositeCommand.primaryName} customNameC1 <arg0>"))
+            assertEquals(true, unifiedCompositeCommand.usage.contains("/${unifiedCompositeCommand.primaryName} functionD0 <arg0>"))
+            assertEquals(true, unifiedCompositeCommand.usage.contains("/${unifiedCompositeCommand.primaryName} customNameD1 <arg0>"))
+            assertEquals(true, unifiedCompositeCommand.usage.contains("/${unifiedCompositeCommand.primaryName} functionE0 <arg0>"))
+            assertEquals(true, unifiedCompositeCommand.usage.contains("/${unifiedCompositeCommand.primaryName} customNameE1 <arg0>"))
         }
     }
 
