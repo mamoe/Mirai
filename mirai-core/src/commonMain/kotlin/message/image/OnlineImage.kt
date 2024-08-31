@@ -175,7 +175,7 @@ internal class OnlineNewTechImageImpl(
     override val originUrl: String
         get() = if (senderMeta.origUrl.isBlank()) {
             gchatImageUrlByImageId(imageId)
-        } else "https://" + delegate.info.noKeyDownloadInfo.domain + "/download?appid=1407&fileid=" + delegate.info.msgInfo.fileId + senderMeta.origUrl
+        } else "http://" + delegate.info.noKeyDownloadInfo.domain + "/download?appid=1407&fileid=" + delegate.info.msgInfo.fileId + senderMeta.origUrl
 
     override val isEmoji: Boolean by lazy {
         delegate.meta.main.isEmoji == 1 || delegate.meta.main.displayStr == "[动画表情]"
