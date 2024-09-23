@@ -21,7 +21,6 @@ import net.mamoe.mirai.console.util.ConsoleExperimentalApi
 import kotlin.annotation.AnnotationRetention.RUNTIME
 import kotlin.annotation.AnnotationTarget.FUNCTION
 
-
 /**
  * 复合指令. 指令注册时候会通过反射构造指令解析器.
  *
@@ -92,7 +91,7 @@ public abstract class CompositeCommand(
     parentPermission: Permission = owner.parentPermission,
     overrideContext: CommandArgumentContext = EmptyCommandArgumentContext,
 ) : Command, AbstractCommand(owner, primaryName, secondaryNames = secondaryNames, description, parentPermission),
-    CommandArgumentContextAware {
+    CommandArgumentContextAware, SubCommandGroup {
 
     private val reflector by lazy { CommandReflector(this, CompositeCommandSubCommandAnnotationResolver) }
 

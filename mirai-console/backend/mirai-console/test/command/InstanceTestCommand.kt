@@ -24,6 +24,7 @@ import net.mamoe.mirai.console.command.CommandManager.INSTANCE.unregisterCommand
 import net.mamoe.mirai.console.command.descriptor.CommandValueArgumentParser
 import net.mamoe.mirai.console.command.descriptor.ExperimentalCommandDescriptors
 import net.mamoe.mirai.console.command.descriptor.buildCommandArgumentContext
+
 import net.mamoe.mirai.console.internal.command.CommandManagerImpl
 import net.mamoe.mirai.console.internal.command.flattenCommandComponents
 import net.mamoe.mirai.console.permission.PermissionService.Companion.permit
@@ -33,6 +34,87 @@ import java.time.*
 import java.time.temporal.TemporalAccessor
 import kotlin.reflect.KClass
 import kotlin.test.*
+
+import net.mamoe.mirai.console.command.SubCommandGroup.FlattenSubCommands
+
+/**
+ *  测试：CompositeCommand下接3种子节点；AbstractSubCommandGroup下接3种子节点；
+ *
+ *
+ *                   [MyUnifiedCommand : CompositeCommand]
+ *                                   |
+ *                     -------------------------------------------------------
+ *                    |                                \                      \
+ *  [ModuleB : AbstractSubCommandGroup]     [functionA0:KFunction]    [ModuleE : CompositeCommand]
+ *                    |
+ *            -----------------------------------------------------------------
+ *          |                                           \                      \
+ *  [ModuleC : AbstractSubCommandGroup]   [ModuleD : CompositeCommand]    [functionB0/functionB1:KFunction]
+ *
+ */
+class MyUnifiedCommand : CompositeCommand(
+    owner, "testMyUnifiedCommand", "tsMUC"
+) {
+    class ModuleB : AbstractSubCommandGroup() {
+        @FlattenSubCommands
+        val moduleC = ModuleC()
+        @FlattenSubCommands
+        val moduleDInB = ModuleD()
+
+        @SubCommand
+        fun functionB0(arg0: Int) {
+            Testing.ok(arg0)
+        }
+        @SubCommand("customNameB1")
+        fun functionB1(arg0: Int) {
+            Testing.ok(arg0)
+        }
+    }
+
+    class ModuleC : AbstractSubCommandGroup() {
+        @SubCommand
+        fun functionC0(arg0: Int) {
+            Testing.ok(arg0)
+        }
+        @SubCommand("customNameC1")
+        fun functionC1(arg0: Int) {
+            Testing.ok(arg0)
+        }
+    }
+
+    class ModuleD : CompositeCommand(owner, "USELESS") {
+        @SubCommand
+        fun functionD0(arg0: Int) {
+            Testing.ok(arg0)
+        }
+        @SubCommand("customNameD1")
+        fun functionD1(arg0: Int) {
+            Testing.ok(arg0)
+        }
+    }
+
+    class ModuleE : CompositeCommand(owner, "USELESS") {
+        @SubCommand
+        fun functionE0(arg0: Int) {
+            Testing.ok(arg0)
+        }
+        @SubCommand("customNameE1")
+        fun functionE1(arg0: Int) {
+            Testing.ok(arg0)
+        }
+    }
+
+    @FlattenSubCommands
+    val moduleB = ModuleB()
+
+    @FlattenSubCommands
+    val moduleE = ModuleE()
+
+    @SubCommand
+    fun functionA0(arg0: Int) {
+        Testing.ok(arg0)
+    }
+}
 
 class TestCompositeCommand : CompositeCommand(
     owner,
@@ -163,6 +245,7 @@ internal class InstanceTestCommand : AbstractConsoleInstanceTest() {
     private val simpleCommand by lazy { TestSimpleCommand() }
     private val rawCommand by lazy { TestRawCommand() }
     private val compositeCommand by lazy { TestCompositeCommand() }
+    private val unifiedCompositeCommand by lazy { MyUnifiedCommand() }
 
     @BeforeTest
     fun grantPermission() {
@@ -496,6 +579,42 @@ internal class InstanceTestCommand : AbstractConsoleInstanceTest() {
             assertEquals(1, withTesting {
                 assertSuccess(compositeCommand.execute(sender, "mute 1"))
             })
+        }
+    }
+
+    @Test
+    fun `unified composite command executing`() = runBlocking {
+        unifiedCompositeCommand.withRegistration {
+            assertEquals(0, withTesting {
+                assertSuccess(unifiedCompositeCommand.execute(sender, "functionA0 0"))
+            })
+            assertEquals(0, withTesting {
+                assertSuccess(unifiedCompositeCommand.execute(sender, "functionB0 0"))
+            })
+            assertEquals(0, withTesting {
+                assertSuccess(unifiedCompositeCommand.execute(sender, "customNameB1 0"))
+            })
+            assertEquals(0, withTesting {
+                assertSuccess(unifiedCompositeCommand.execute(sender, "functionC0 0"))
+            })
+            assertEquals(0, withTesting {
+                assertSuccess(unifiedCompositeCommand.execute(sender, "customNameC1 0"))
+            })
+            assertEquals(0, withTesting {
+                assertSuccess(unifiedCompositeCommand.execute(sender, "functionD0 0"))
+            })
+            assertEquals(0, withTesting {
+                assertSuccess(unifiedCompositeCommand.execute(sender, "customNameD1 0"))
+            })
+            assertEquals(true, unifiedCompositeCommand.usage.contains("/${unifiedCompositeCommand.primaryName} functionA0 <arg0>"))
+            assertEquals(true, unifiedCompositeCommand.usage.contains("/${unifiedCompositeCommand.primaryName} functionB0 <arg0>"))
+            assertEquals(true, unifiedCompositeCommand.usage.contains("/${unifiedCompositeCommand.primaryName} customNameB1 <arg0>"))
+            assertEquals(true, unifiedCompositeCommand.usage.contains("/${unifiedCompositeCommand.primaryName} functionC0 <arg0>"))
+            assertEquals(true, unifiedCompositeCommand.usage.contains("/${unifiedCompositeCommand.primaryName} customNameC1 <arg0>"))
+            assertEquals(true, unifiedCompositeCommand.usage.contains("/${unifiedCompositeCommand.primaryName} functionD0 <arg0>"))
+            assertEquals(true, unifiedCompositeCommand.usage.contains("/${unifiedCompositeCommand.primaryName} customNameD1 <arg0>"))
+            assertEquals(true, unifiedCompositeCommand.usage.contains("/${unifiedCompositeCommand.primaryName} functionE0 <arg0>"))
+            assertEquals(true, unifiedCompositeCommand.usage.contains("/${unifiedCompositeCommand.primaryName} customNameE1 <arg0>"))
         }
     }
 

@@ -94,6 +94,14 @@ public abstract class net/mamoe/mirai/console/command/AbstractPluginCustomComman
 	protected abstract fun sendMessageImpl (Ljava/lang/String;)V
 }
 
+public abstract class net/mamoe/mirai/console/command/AbstractSubCommandGroup : net/mamoe/mirai/console/command/SubCommandGroup, net/mamoe/mirai/console/command/descriptor/CommandArgumentContextAware {
+	public fun <init> ()V
+	public fun <init> (Lnet/mamoe/mirai/console/command/descriptor/CommandArgumentContext;)V
+	public synthetic fun <init> (Lnet/mamoe/mirai/console/command/descriptor/CommandArgumentContext;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun getContext ()Lnet/mamoe/mirai/console/command/descriptor/CommandArgumentContext;
+	public final fun getOverloads ()Ljava/util/List;
+}
+
 public abstract class net/mamoe/mirai/console/command/AbstractUserCommandSender : net/mamoe/mirai/console/command/AbstractCommandSender, net/mamoe/mirai/console/command/UserCommandSender {
 	public fun getBot ()Lnet/mamoe/mirai/Bot;
 	public final fun getName ()Ljava/lang/String;
@@ -371,7 +379,7 @@ public abstract interface class net/mamoe/mirai/console/command/CommandSenderOnM
 	public abstract fun getFromEvent ()Lnet/mamoe/mirai/event/events/MessageEvent;
 }
 
-public abstract class net/mamoe/mirai/console/command/CompositeCommand : net/mamoe/mirai/console/command/AbstractCommand, net/mamoe/mirai/console/command/Command, net/mamoe/mirai/console/command/descriptor/CommandArgumentContextAware {
+public abstract class net/mamoe/mirai/console/command/CompositeCommand : net/mamoe/mirai/console/command/AbstractCommand, net/mamoe/mirai/console/command/Command, net/mamoe/mirai/console/command/SubCommandGroup, net/mamoe/mirai/console/command/descriptor/CommandArgumentContextAware {
 	public fun <init> (Lnet/mamoe/mirai/console/command/CommandOwner;Ljava/lang/String;[Ljava/lang/String;Ljava/lang/String;Lnet/mamoe/mirai/console/permission/Permission;Lnet/mamoe/mirai/console/command/descriptor/CommandArgumentContext;)V
 	public synthetic fun <init> (Lnet/mamoe/mirai/console/command/CommandOwner;Ljava/lang/String;[Ljava/lang/String;Ljava/lang/String;Lnet/mamoe/mirai/console/permission/Permission;Lnet/mamoe/mirai/console/command/descriptor/CommandArgumentContext;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun getContext ()Lnet/mamoe/mirai/console/command/descriptor/CommandArgumentContext;
@@ -603,6 +611,13 @@ public class net/mamoe/mirai/console/command/StrangerCommandSender : net/mamoe/m
 public final class net/mamoe/mirai/console/command/StrangerCommandSenderOnMessage : net/mamoe/mirai/console/command/StrangerCommandSender, net/mamoe/mirai/console/command/CommandSenderOnMessage {
 	public synthetic fun getFromEvent ()Lnet/mamoe/mirai/event/events/MessageEvent;
 	public fun getFromEvent ()Lnet/mamoe/mirai/event/events/StrangerMessageEvent;
+}
+
+public abstract interface class net/mamoe/mirai/console/command/SubCommandGroup {
+	public abstract fun getOverloads ()Ljava/util/List;
+}
+
+public abstract interface annotation class net/mamoe/mirai/console/command/SubCommandGroup$FlattenSubCommands : java/lang/annotation/Annotation {
 }
 
 public abstract interface class net/mamoe/mirai/console/command/SystemCommandSender : net/mamoe/mirai/console/command/CommandSender {
