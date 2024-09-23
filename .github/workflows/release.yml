@@ -127,7 +127,7 @@ jobs:
         run: ./gradlew publishAllPublicationsToMiraiStageRepoRepository ${{ env.gradleArgs }}
 
       - name: Restore staging repository id
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4.1.7
         with:
           name: publish-stage-id
           path: ci-release-helper/repoid
